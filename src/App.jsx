@@ -8,7 +8,7 @@ import {
 
 /** ===== THEME (Dark Brown + White) ===== */
 const COLORS = {
-  bg: "#3e2723",            // page background (very dark brown)
+  bg: "#2d1b18ff",            // page background (very dark brown)
   card: "#4e342e",          // cards / sections
   cardBorder: "#6d4c41",    // borders
   text: "#ffffff",          // default text
