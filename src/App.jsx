@@ -39,7 +39,7 @@ const resizeFlavours = (arr, n, fallback) => {
 
 /** ===== MENU DATA ===== */
 const milkshakeRegularFlavours = [
-  "Areo Mint","Banana","Bounty","Crunchie","Chocolate","Ferrero","Flake","Galaxy",
+  "Areo-Mint","Banana","Bounty","Crunchie","Chocolate","Ferrero","Flake","Galaxy",
   "Galaxy Caramel","Kinder Bueno","Kinder Bueno White","Lotus Biscoff","Mnalteasers",
   "Milkybar","Millions Bubblegum","Nutella","Oreo","Raspberry Ripple","Reese's",
   "Skittles","Snickers","Strawberry","Terry's Orange","Vanilla",
