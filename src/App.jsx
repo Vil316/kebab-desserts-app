@@ -9,8 +9,8 @@ import {
 /** ===== THEME (Dark Brown + White) ===== */
 const COLORS = {
   bg: "#2d1b18ff",            // page background (very dark brown)
-  card: "#4e342e",          // cards / sections
-  cardBorder: "#6d4c41",    // borders
+  card: "#543027ff",          // cards / sections
+  cardBorder: "#462c23ff",    // borders
   text: "#ffffff",          // default text
   subtext: "#f5e9e7",       // lighter text
   pillActive: "#3e2723",    // active pill (deep brown)
