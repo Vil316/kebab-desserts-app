@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <link rel="manifest" href="/manifest.webmanifest" />
+<meta name="theme-color" content="#3e2723" />
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,5 +11,40 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(console.error);
+    });
+  }
+</script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").then((reg) => {
+        // Reload the page when a new SW takes control
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          window.location.reload();
+        });
+        // If there's an updated worker waiting, tell it to activate now
+        if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+        reg.addEventListener("updatefound", () => {
+          const newSW = reg.installing;
+          if (newSW) {
+            newSW.addEventListener("statechange", () => {
+              if (newSW.state === "installed" && reg.waiting) {
+                reg.waiting.postMessage({ type: "SKIP_WAITING" });
+              }
+            });
+          }
+        });
+      });
+    });
+    // Let SW receive SKIP_WAITING
+    navigator.serviceWorker.addEventListener("message", (ev) => {
+      // no-op: just ensures channel is open
+    });
+  }
+</script>
   </body>
 </html>
