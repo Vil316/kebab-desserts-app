@@ -37,6 +37,17 @@ const resizeFlavours = (arr, n, fallback) => {
   return out;
 };
 
+/** ===== VIEWPORT HOOK ===== */
+function useWindowWidth() {
+  const [w, setW] = useState(typeof window !== "undefined" ? window.innerWidth : 1200);
+  useEffect(() => {
+    function onResize() { setW(window.innerWidth); }
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return w;
+}
+
 /** ===== MENU DATA ===== */
 const milkshakeRegularFlavours = [
   "Areo-Mint","Banana","Bounty","Crunchie","Chocolate","Ferrero","Flake","Galaxy",
@@ -63,6 +74,7 @@ const serviceTypes = ["Waiting", "Delivery", "Collection"];
 function Section({ title, count, children }) {
   return (
     <section style={{
+      width: '100%',
       background: COLORS.card,
       color: COLORS.text,
       border: `1px solid ${COLORS.cardBorder}`,
@@ -200,7 +212,7 @@ function OrderCard({ o, forceDone }) {
 }
 
 /** ===== KEBAB (Sender) ===== */
-function KebabSender({ onSend, sentOrders }){
+function KebabSender({ onSend, sentOrders, isNarrow }){
   const [cart, setCart] = useState([]);
 
   const [milkshake, setMilkshake] = useState({ flavour: null, isGourmet: false, size: "Regular", qty: 1, whipped: false, pack: false });
@@ -352,7 +364,11 @@ function KebabSender({ onSend, sentOrders }){
       )}
 
       {/* Cart + Send */}
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 }}>
+      <div style={{ 
+        display: "grid", 
+        gridTemplateColumns: isNarrow ? "1fr" : "2fr 1fr", 
+        gap: isNarrow ? 8 : 12 
+      }}>
         <Section title="Cart">
           {cart.length === 0 ? (
             <div style={{ color: COLORS.subtext, fontSize: 14 }}>No items yet. Add milkshakes, ice creams, or cakes.</div>
@@ -415,7 +431,7 @@ function KebabSender({ onSend, sentOrders }){
         {active.length === 0 ? (
           <div style={{ color: COLORS.subtext, fontSize: 14 }}>No active orders.</div>
         ) : (
-          <div style={{ display: "grid", gap: 8, maxHeight: 250, overflowY: "auto" }}>
+          <div style={{ display: "grid", gap: 8, maxHeight: isNarrow ? 180 : 250, overflowY: "auto" }}>
             {active.map(o => (<OrderCard key={o.id} o={o} />))}
           </div>
         )}
@@ -425,7 +441,7 @@ function KebabSender({ onSend, sentOrders }){
         {completed.length === 0 ? (
           <div style={{ color: COLORS.subtext, fontSize: 14 }}>No completed orders yet.</div>
         ) : (
-          <div style={{ display: "grid", gap: 8, maxHeight: 250, overflowY: "auto" }}>
+          <div style={{ display: "grid", gap: 8, maxHeight: isNarrow ? 180 : 250, overflowY: "auto" }}>
             {completed.map(o => (<OrderCard key={o.id} o={o} forceDone />))}
           </div>
         )}
@@ -435,7 +451,7 @@ function KebabSender({ onSend, sentOrders }){
 }
 
 /** ===== DESSERTS (Receiver) ===== */
-function DessertsReceiver({ orders, onStart, onReady, onDone }) {
+function DessertsReceiver({ orders, onStart, onReady, onDone, isNarrow }) {
   const active = orders.filter(o=>o.status!=="DONE");
   const completed = orders.filter(o=>o.status==="DONE");
   return (
@@ -489,7 +505,7 @@ function DessertsReceiver({ orders, onStart, onReady, onDone }) {
         {completed.length === 0 ? (
           <div style={{ color: COLORS.subtext, fontSize: 14 }}>No completed orders yet.</div>
         ) : (
-          <div style={{ display: "grid", gap: 8, maxHeight: 250, overflowY: 'auto' }}>
+          <div style={{ display: "grid", gap: 8, maxHeight: isNarrow ? 180 : 250, overflowY: 'auto' }}>
             {completed.map(o => (<OrderCard key={o.id} o={o} forceDone />))}
           </div>
         )}
@@ -504,6 +520,9 @@ export default function App(){
   const [orders, setOrders] = useState([]);
   const audioRef = useRef(null);
   const [lastClearedDate, setLastClearedDate] = useState(null);
+
+  const w = useWindowWidth();
+  const isNarrow = w < 900;
 
   // Firestore realtime listener
   useEffect(() => {
@@ -571,11 +590,18 @@ export default function App(){
   return (
     <div style={{ background: COLORS.bg, color: COLORS.text, minHeight: "100vh" }}>
       <audio ref={audioRef} src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto" />
-      <div style={{ padding: 16, maxWidth: 1100, margin: "0 auto", display: "grid", gap: 12 }}>
-        <div style={{ fontSize: 22, fontWeight: 900 }}>Desserts Relay — Live (Firestore)</div>
+      <div style={{ 
+        padding: isNarrow ? 10 : 16,
+        width: "100%",
+        maxWidth: "100%",
+        margin: "0 auto",
+        display: "grid",
+        gap: isNarrow ? 8 : 12
+      }}>
+        <div style={{ fontSize: isNarrow ? 18 : 22, fontWeight: 900 }}>Desserts Relay — Live (Firestore)</div>
         <div style={{ fontSize: 12, color: COLORS.subtext }}>Open on both tablets. Kebab sends; Desserts receives. Works over different Wi‑Fi.</div>
 
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <Button active={tab==="kebab"} onClick={()=>setTab("kebab")}>Kebab — Send Orders</Button>
           <Button active={tab==="desserts"} onClick={()=>setTab("desserts")}>Desserts — Receive Orders</Button>
         </div>
@@ -584,6 +610,7 @@ export default function App(){
           <KebabSender
             onSend={pushOrder}
             sentOrders={orders}
+            isNarrow={isNarrow}
           />
         )}
 
@@ -593,6 +620,7 @@ export default function App(){
             onStart={(id)=>setStatus(id, "IN_PROGRESS")}
             onReady={(id)=>setStatus(id, "READY")}
             onDone={(id)=>setStatus(id, "DONE")}
+            isNarrow={isNarrow}
           />
         )}
 
