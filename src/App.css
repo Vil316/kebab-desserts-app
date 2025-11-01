@@ -1,42 +1,80 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+
+/* Headings */
+h1, h2, h3, h4, h5 {
+  color: #ffffff;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Buttons, tabs, and pills */
+button {
+  background-color: #5d4037; /* Mid brown */
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+button:hover {
+  background-color: #795548;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* Active selected pill */
+button.active,
+button:focus {
+  background-color: #8d6e63;
+  color: #ffffff;
 }
 
-.card {
-  padding: 2em;
+/* Card or panel sections */
+.card, .panel {
+  background-color: #4e342e;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 1rem;
+  color: #ffffff;
 }
 
+/* Inputs and selects */
+input, select {
+  background-color: #5d4037;
+  color: #ffffff;
+  border: 1px solid #8d6e63;
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+
+input::placeholder {
+  color: #d7ccc8;
+}
+
+/* Cart and Orders sections */
+.cart, .orders {
+  background-color: #4e342e;
+  border: 1px solid #8d6e63;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #795548;
+  border-radius: 10px;
+}
+
+/* Links */
+a {
+  color: #ffcc80;
+}
+a:hover {
+  color: #ffe0b2;
+}
+
+/* Utility */
 .read-the-docs {
-  color: #888;
+  color: #ccc;
 }
