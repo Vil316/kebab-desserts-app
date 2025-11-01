@@ -1,80 +1,92 @@
+import React from 'react';
+import { Routes, Route, Link } from 'react-router-dom';
+import Home from './pages/Home';
+import About from './pages/About';
 
-/* Headings */
-h1, h2, h3, h4, h5 {
-  color: #ffffff;
+/** ===== PWA Update Prompt ===== */
+function UpdatePrompt() {
+  const [waitingReg, setWaitingReg] = React.useState(null);
+  const [visible, setVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+
+    let regRef;
+    navigator.serviceWorker.getRegistration().then((reg) => {
+      if (!reg) return;
+      regRef = reg;
+
+      // If there's already an updated SW waiting, show prompt
+      if (reg.waiting) {
+        setWaitingReg(reg);
+        setVisible(true);
+      }
+
+      // When a new SW is found
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        if (!newSW) return;
+        newSW.addEventListener('statechange', () => {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            setWaitingReg(reg);
+            setVisible(true);
+          }
+        });
+      });
+    });
+
+    // When the controller changes, the new SW has taken over — reload
+    const onControllerChange = () => window.location.reload();
+    navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
+
+    // Periodically check for updates
+    const interval = setInterval(async () => {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg) reg.update();
+    }, 60 * 1000); // check every 60s
+
+    return () => {
+      navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange);
+      clearInterval(interval);
+    };
+  }, []);
+
+  if (!visible) return null;
+
+  const askToRefresh = () => {
+    if (waitingReg && waitingReg.waiting) {
+      waitingReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+  };
+
+  return (
+    <div style={{
+      position: 'fixed', bottom: 12, right: 12, left: 12, zIndex: 9999,
+      background: '#2b2b2b', color: '#fff', border: '1px solid #6d4c41',
+      borderRadius: 10, padding: 12, display: 'flex', gap: 12, alignItems: 'center',
+      boxShadow: '0 6px 18px rgba(0,0,0,.25)'
+    }}>
+      <span style={{fontWeight: 600}}>Update available.</span>
+      <span style={{opacity: .9}}>Tap to refresh the app with the latest version.</span>
+      <div style={{marginLeft: 'auto', display:'flex', gap:8}}>
+        <button onClick={askToRefresh} style={{padding: '6px 12px', borderRadius: 8, border: '1px solid #ffffff44', background:'#93c572', color:'#1a1a1a', cursor:'pointer'}}>Refresh now</button>
+        <button onClick={()=>setVisible(false)} style={{padding: '6px 10px', borderRadius: 8, border: '1px solid #ffffff22', background:'transparent', color:'#fff', cursor:'pointer'}}>Later</button>
+      </div>
+    </div>
+  );
 }
 
-/* Buttons, tabs, and pills */
-button {
-  background-color: #5d4037; /* Mid brown */
-  color: #ffffff;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-button:hover {
-  background-color: #795548;
-}
-
-/* Active selected pill */
-button.active,
-button:focus {
-  background-color: #8d6e63;
-  color: #ffffff;
-}
-
-/* Card or panel sections */
-.card, .panel {
-  background-color: #4e342e;
-  border-radius: 12px;
-  padding: 1rem;
-  margin-top: 1rem;
-  color: #ffffff;
-}
-
-/* Inputs and selects */
-input, select {
-  background-color: #5d4037;
-  color: #ffffff;
-  border: 1px solid #8d6e63;
-  border-radius: 6px;
-  padding: 0.5rem;
-}
-
-input::placeholder {
-  color: #d7ccc8;
-}
-
-/* Cart and Orders sections */
-.cart, .orders {
-  background-color: #4e342e;
-  border: 1px solid #8d6e63;
-  border-radius: 10px;
-  padding: 1rem;
-  margin-top: 1rem;
-}
-
-/* Scrollbars */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-thumb {
-  background-color: #795548;
-  border-radius: 10px;
-}
-
-/* Links */
-a {
-  color: #ffcc80;
-}
-a:hover {
-  color: #ffe0b2;
-}
-
-/* Utility */
-.read-the-docs {
-  color: #ccc;
+export default function App() {
+  return (
+    <div style={{ fontFamily: 'Arial, sans-serif', padding: 20, background: '#2b2b2b' }}>
+      <UpdatePrompt />
+      <nav>
+        <Link to="/">Home</Link> | <Link to="/about">About</Link>
+      </nav>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
+    </div>
+  );
 }
